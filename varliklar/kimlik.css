@@ -148,10 +148,15 @@ h1, h2, h3 { font-weight: 500; }
 }
 /* Kaydırınca çizgi belirir: sayfanın "nerede olduğunu" söyleyen tek işaret */
 .ustbar.kaydi { border-bottom-color: var(--kenar); }
+/* Üst çubuk **sarılabilir** olmalı. Sabit tek satır varsayımı, telefonda dört
+   bağlantıyı sağdan taşırıyordu: en sondaki bağlantı ("Gizlilik") kesiliyor ve
+   sayfayı yatay kaydırmadan görünmüyordu. Marka ve bağlantılar sığmadığında
+   alt satıra iner (bkz. `max-width: 660px` bloğu). */
 .ustbar-ic {
   display: flex;
   align-items: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 4px 14px;
   min-height: 68px;
 }
 .marka {
@@ -176,7 +181,8 @@ h1, h2, h3 { font-weight: 500; }
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: clamp(12px, 2.4vw, 24px);
+  flex-wrap: wrap;
+  gap: 6px clamp(12px, 2.4vw, 24px);
   font-size: .86rem;
   letter-spacing: .01em;
 }
@@ -583,8 +589,21 @@ body.js .kayit.geldi { opacity: 1; transform: none; }
 /* --- Duyarlı -------------------------------------------------------------- */
 @media (max-width: 660px) {
   body { font-size: 16px; }
-  .ustbar-ic { min-height: 62px; }
-  .ustbar-baglantilar { gap: 14px; font-size: .8rem; }
+  .ustbar-ic {
+    min-height: 0;
+    gap: 2px 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  /* Bağlantılar markanın altına iner: telefonda tek satıra sığmıyorlar ve
+     taşan kısım yatay kaydırma olmadan görünmüyordu. `flex: 1 1 100%` ile tam
+     satır kaplarlar; yine sığmazlarsa kendi içlerinde sarılırlar (320 px). */
+  .ustbar-baglantilar {
+    flex: 1 1 100%;
+    margin-left: 0;
+    gap: 6px 16px;
+    font-size: .8rem;
+  }
   .ozet > div { flex: 1 1 100%; padding: 13px 0; }
   .ozet > div + div { border-left: 0; border-top: 1px solid var(--kenar); padding-left: 0; }
   .kayit {
