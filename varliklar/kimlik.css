@@ -186,7 +186,21 @@ h1, h2, h3 { font-weight: 500; }
   font-size: .86rem;
   letter-spacing: .01em;
 }
-.ustbar-baglantilar a { border-bottom-color: transparent; color: var(--kagit-soluk); }
+/* Dokunma hedefi (WCAG 2.2 SC 2.5.8): metin yüksekliğinde kalan bağlantılar
+   24×24 CSS px eşiğinin altında kalıyordu — üst çubuk telefonda 22 px, altbilgi
+   19–20 px. Hedef büyütülürken DÜZEN değişmez: fazladan yükseklik yalnız yukarı
+   doğru eklenir (`padding-block-start` + negatif `margin-block-start`, ikisi eşit)
+   ve metin kutunun dibine yaslanır. Böylece metnin ve alt çizginin yeri
+   piksel piksel aynı kalır, üst çubuğun satır yüksekliği de büyümez. */
+.ustbar-baglantilar a {
+  display: inline-flex;
+  align-items: flex-end;
+  min-height: 26px;
+  padding-block-start: 4px;
+  margin-block-start: -4px;
+  border-bottom-color: transparent;
+  color: var(--kagit-soluk);
+}
 .ustbar-baglantilar a:hover { color: var(--kagit); border-bottom-color: var(--kenar-kuvvetli); }
 
 /* --- Kahraman: mürekkep alanı --------------------------------------------- */
@@ -537,7 +551,16 @@ footer {
   justify-content: space-between;
 }
 footer p { margin: 0; }
-footer a { color: var(--kagit-soluk); border-bottom-color: var(--kenar); }
+/* Altbilgi bağlantıları da satır yüksekliğindeydi (19–20 px). Burada
+   `inline-flex` KULLANILMAZ: atomik kutu satır kaydırır ve altbilgi üç satıra
+   düşer (ölçüldü: 171 → 198 px). Satır içi kutuya yalnız YUKARI dolgu vermek
+   hedefi büyütür ama satır düzenini ve alt çizginin yerini hiç değiştirmez
+   (ölçüldü: altbilgi 171 px aynı, taban çizgisi aynı). */
+footer a {
+  padding-block-start: 7px;
+  color: var(--kagit-soluk);
+  border-bottom-color: var(--kenar);
+}
 
 /* --- Belirme (reveal) -----------------------------------------------------
    İki yol var, ikisi de aynı sonucu verir:
