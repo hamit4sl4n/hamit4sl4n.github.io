@@ -5,7 +5,7 @@ kendi alt dizininde (`/<slug>/`) durur. Dosyalar **üretilmiştir**; elle
 düzenlemeyin — bir sonraki yayında üzerine yazılır.
 
 - Vitrin: `/`
-- Uygulama sayfaları: \`/tesbihat/\` 
+- Uygulama sayfaları: \`/tesbihat/\` \`/last-stand/\` 
 - APK'lar: Releases (varlık adları sabit; bağlantı sürümler arasında değişmez)
 - `app-ads.txt`: alan adının **kökünde** olmak zorunda olduğu için burada
 - `robots.txt`: yalnızca kökte okunur; alt dizinlerdeki kopyalar dikkate alınmaz

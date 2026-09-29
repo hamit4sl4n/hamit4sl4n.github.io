@@ -1,0 +1,642 @@
+/* ============================================================================
+   4SL4N Studio — paylaşılan kimlik katmanı
+   ----------------------------------------------------------------------------
+   Bu dosya **iki sayfanın ortak dilidir**: stüdyo vitrini (kök) ve her
+   uygulamanın indirme sayfası (alt dizin). İkisi de buradan beslenir ki
+   vitrinden bir uygulamaya geçen ziyaretçi farklı bir siteye düşmesin.
+
+   Kimlik: "Mürekkep Defteri". Zemin gece mürekkebi, yazı kâğıt beyazı, vurgu
+   pirinç. Tipografi iki aileye ayrılır ve rolleri karışmaz:
+     · Fraunces  → yalnızca büyük cümleler (bir sayfada 3-4 kez görünür)
+     · IBM Plex Mono → geri kalan her şey (kayıt defteri dili)
+   Sayılar `tabular-nums`: sürüm/boyut/tarih sütunları hizasız durmasın.
+
+   Yerleşim dili kart değil **kayıt satırı**: gölge yok, tekrar eden yuvarlak
+   kutu yok, her şey ince çizgi ve hizayla ayrılır. Süs yok; hareket yalnızca
+   bilgi verdiğinde var (mürekkep alanı, satırın yerine oturması, sayaç).
+
+   Renkler ve ölçüler tek yerde: aşağıdaki :root bloğu. Yeni bir bileşen
+   yazarken ham renk kullanma, değişken kullan.
+   ========================================================================== */
+
+/* Yazı tipi tanımları (@font-face) burada DEĞİL, `yazitipleri.css` içinde:
+   o dosya `scripts/yazitipi_indir.sh` tarafından indirilen dosyalardan üretilir
+   ve alt küme (unicode-range) bilgisiyle birlikte gelir. İki yerde tanımlamak
+   çift indirmeye ve sessiz tutarsızlığa yol açardı. HTML iki dosyayı da
+   sırayla bağlar: önce yazitipleri.css, sonra kimlik.css. */
+
+:root {
+  /* Renkler */
+  --gece: #07080a;
+  --gece-ust: #0d0f13;
+  --gece-kutu: #12151a;
+  --kenar: rgba(237, 230, 215, .13);
+  --kenar-kuvvetli: rgba(237, 230, 215, .26);
+  --kagit: #ece5d6;
+  --kagit-soluk: #96907f;
+  --kagit-silik: #6d6a60;
+  --pirinc: #c89a4e;
+  --pirinc-parlak: #eec982;
+  --iyi: #7fb069;
+
+  /* Ölçü */
+  --olcu: 1060px;
+  --bosluk: clamp(20px, 5vw, 40px);
+  --yuvarlak: 14px;
+  --yuvarlak-kucuk: 10px;
+
+  /* Yazı tipleri: ikisi de yerelden gelir (bkz. yazitipleri.css) */
+  --yazi: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --yazi-baslik: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+
+  /* Hareket: tek yerde tanımlı, `prefers-reduced-motion` hepsini kapatır */
+  --yumusak: cubic-bezier(.2, .7, .2, 1);
+  --hizli: .18s;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  color-scheme: dark;
+  /* Sabit üst çubuk bağlantı hedeflerinin üstüne binmesin */
+  scroll-padding-top: 92px;
+}
+
+body {
+  margin: 0;
+  background: var(--gece);
+  color: var(--kagit);
+  font-family: var(--yazi);
+  font-size: clamp(15.5px, .55vw + 14.6px, 17px);
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Kâğıt hissi: iki yumuşak ışık + çok hafif yatay defter çizgileri.
+   Görsel dosyası yok; hepsi iki gradient'te. Sabit (fixed) olduğu için
+   kaydırırken doku "kâğıt" gibi durur, sayfayla kaymaz. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 620px at 78% -12%, rgba(200, 154, 78, .16), transparent 62%),
+    radial-gradient(900px 520px at 6% 4%, rgba(120, 150, 160, .09), transparent 60%),
+    linear-gradient(180deg, #0a0c10 0%, #07080a 45%, #06070a 100%);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .5;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(237, 230, 215, .045) 0 1px,
+    transparent 1px 34px
+  );
+  /* Kenarlarda eriyen defter çizgileri. Safari hâlâ ön ekli sürümü istiyor. */
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
+}
+
+::selection { background: var(--pirinc); color: #16130a; }
+
+a {
+  color: var(--kagit);
+  text-decoration: none;
+  border-bottom: 1px solid var(--kenar-kuvvetli);
+  transition: border-color var(--hizli), color var(--hizli);
+}
+a:hover { color: var(--pirinc-parlak); border-bottom-color: var(--pirinc); }
+
+:focus-visible {
+  outline: 2px solid var(--pirinc-parlak);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+h1, h2, h3 { font-weight: 500; }
+
+/* Metin seçimi, sayı hizası, ölçü birimleri */
+.sayi, .kayit-olcu, .ozet dd, time { font-variant-numeric: tabular-nums; }
+
+.ortak {
+  width: 100%;
+  max-width: var(--olcu);
+  margin: 0 auto;
+  padding: 0 var(--bosluk);
+}
+
+/* --- Sabit üst çubuk ------------------------------------------------------ */
+.ustbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  background: linear-gradient(180deg, rgba(7, 8, 10, .86), rgba(7, 8, 10, .55));
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s ease, background-color .3s ease;
+}
+/* Kaydırınca çizgi belirir: sayfanın "nerede olduğunu" söyleyen tek işaret */
+.ustbar.kaydi { border-bottom-color: var(--kenar); }
+/* Üst çubuk **sarılabilir** olmalı. Sabit tek satır varsayımı, telefonda dört
+   bağlantıyı sağdan taşırıyordu: en sondaki bağlantı ("Gizlilik") kesiliyor ve
+   sayfayı yatay kaydırmadan görünmüyordu. Marka ve bağlantılar sığmadığında
+   alt satıra iner (bkz. `max-width: 660px` bloğu). */
+.ustbar-ic {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  min-height: 68px;
+}
+.marka {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.marka img, .marka svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+  border-radius: 8px;
+  background: var(--kagit);
+  padding: 3px;
+}
+.marka span { white-space: nowrap; }
+.marka:hover { color: var(--pirinc-parlak); }
+.ustbar-baglantilar {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px clamp(12px, 2.4vw, 24px);
+  font-size: .86rem;
+  letter-spacing: .01em;
+}
+.ustbar-baglantilar a { border-bottom-color: transparent; color: var(--kagit-soluk); }
+.ustbar-baglantilar a:hover { color: var(--kagit); border-bottom-color: var(--kenar-kuvvetli); }
+
+/* --- Kahraman: mürekkep alanı --------------------------------------------- */
+.kahraman {
+  position: relative;
+  min-height: min(100svh, 900px);
+  display: flex;
+  align-items: center;
+  padding: clamp(64px, 12vh, 140px) 0 clamp(48px, 8vh, 96px);
+  overflow: hidden;
+  overflow: clip;
+}
+/* Tuvalin kendisi dekor değil: alanın üstünde metin okunur kalsın diye
+   üstüne mürekkep yönünde bir karartma serilir. */
+.murekkep {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  /* Tuvalin arkasında metin var: işaretçi olayları içeriğe geçmeli. */
+  pointer-events: none;
+}
+.kahraman::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(7, 8, 10, .55) 0%, rgba(7, 8, 10, .18) 38%, rgba(7, 8, 10, .92) 100%);
+}
+.kahraman-ic {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+/* WebGL yoksa ya da hareket kapalıysa: tuval gizlenir, yerini CSS mürekkep
+   yıkaması alır. Süs değil zorunluluk — aksi hâlde okuyucu boş siyah ekran
+   görürdü. */
+.murekkep-yok .murekkep { display: none; }
+.murekkep-yok .kahraman::after {
+  background:
+    radial-gradient(620px 380px at 22% 30%, rgba(200, 154, 78, .22), transparent 70%),
+    radial-gradient(520px 320px at 82% 62%, rgba(110, 140, 150, .16), transparent 72%),
+    linear-gradient(180deg, rgba(7, 8, 10, .35), rgba(7, 8, 10, .95));
+}
+
+.isaret { display: block; width: clamp(72px, 11vw, 116px); height: auto; margin-bottom: clamp(18px, 3vh, 30px); }
+.isaret .cizik {
+  stroke: var(--kagit);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: var(--boy, 120);
+  stroke-dashoffset: var(--boy, 120);
+  animation: ciz .55s var(--yumusak) both;
+}
+.isaret .cizik:nth-child(1) { animation-delay: .05s; }
+.isaret .cizik:nth-child(2) { animation-delay: .12s; }
+.isaret .cizik:nth-child(3) { animation-delay: .19s; }
+.isaret .cizik:nth-child(4) { animation-delay: .26s; }
+.isaret .capraz {
+  stroke: var(--pirinc);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-dasharray: var(--boy, 160);
+  stroke-dashoffset: var(--boy, 160);
+  animation: ciz .5s var(--yumusak) .46s both;
+}
+.isaret .cetvel {
+  fill: var(--pirinc);
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: cetvel .45s var(--yumusak) .72s both;
+}
+@keyframes ciz { to { stroke-dashoffset: 0; } }
+@keyframes cetvel { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.amblem-satir {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 14px;
+  font-size: .86rem;
+  letter-spacing: .01em;
+  color: var(--pirinc);
+}
+.amblem-satir::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, var(--kenar-kuvvetli), transparent);
+  transform-origin: left;
+  animation: cetvel .9s var(--yumusak) .35s both;
+}
+
+/* Büyük cümle: sayfada en fazla birkaç kez görünen tek sesli vurgu. */
+.buyuk {
+  font-family: var(--yazi-baslik);
+  font-size: clamp(2.5rem, 7.6vw, 5.2rem);
+  line-height: .97;
+  letter-spacing: -.028em;
+  font-weight: 600;
+  margin: 0 0 clamp(18px, 3vh, 28px);
+  max-width: 17ch;
+  text-wrap: balance;
+}
+.buyuk em {
+  font-style: normal;
+  color: var(--pirinc-parlak);
+}
+.giris {
+  color: var(--kagit-soluk);
+  font-size: clamp(.98rem, .3vw + .9rem, 1.08rem);
+  max-width: 56ch;
+  margin: 0;
+}
+.giris strong { color: var(--kagit); font-weight: 600; }
+
+/* Kaydırma işareti: aşağıda içerik olduğunu söyleyen tek ipucu */
+.kaydir-isaret {
+  margin-top: clamp(30px, 5vh, 54px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: .84rem;
+  letter-spacing: .01em;
+  color: var(--kagit-silik);
+}
+.kaydir-isaret::before {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: var(--kenar-kuvvetli);
+  animation: nabiz 2.6s var(--yumusak) infinite;
+  transform-origin: left;
+}
+@keyframes nabiz {
+  0%, 100% { transform: scaleX(.4); opacity: .5; }
+  50% { transform: scaleX(1); opacity: 1; }
+}
+
+/* --- Özet sayaçları ------------------------------------------------------- */
+.ozet {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: clamp(28px, 5vh, 44px) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--kenar);
+  border-bottom: 1px solid var(--kenar);
+}
+.ozet > div {
+  flex: 1 1 150px;
+  padding: 16px 20px 16px 0;
+  min-width: 0;
+}
+.ozet > div + div { border-left: 1px solid var(--kenar); padding-left: 20px; }
+.ozet dt {
+  font-size: .74rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--kagit-silik);
+  margin: 0 0 6px;
+}
+.ozet dd {
+  margin: 0;
+  font-family: var(--yazi-baslik);
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+
+/* --- Bölümler ------------------------------------------------------------- */
+.bolum { margin-top: clamp(60px, 11vh, 116px); }
+.bolum > h2 {
+  font-family: var(--yazi-baslik);
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+  letter-spacing: -.02em;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.bolum > .ipucu {
+  color: var(--kagit-silik);
+  font-size: .9rem;
+  margin: 0 0 22px;
+  max-width: 52ch;
+}
+
+/* --- Kayıt satırı --------------------------------------------------------- */
+.kayitlar { border-top: 1px solid var(--kenar); }
+.kayit {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px 18px;
+  padding: 18px 10px;
+  border-bottom: 1px solid var(--kenar);
+  isolation: isolate;
+}
+/* Satırın zemininde imleci izleyen çok hafif mürekkep lekesi (JS `--mx/--my`
+   yazar; JS yoksa görünmez, hiçbir şey bozulmaz). */
+a.kayit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  background: radial-gradient(280px 160px at var(--mx, 50%) var(--my, 50%), rgba(200, 154, 78, .13), transparent 72%);
+  transition: opacity .25s ease;
+}
+a.kayit:hover::before, a.kayit:focus-visible::before { opacity: 1; }
+/* Soldan büyüyen pirinç çizgi: "bu satır açılabilir" bilgisini verir */
+a.kayit::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--pirinc);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .32s var(--yumusak);
+}
+a.kayit:hover::after, a.kayit:focus-visible::after { transform: scaleX(1); }
+a.kayit { cursor: pointer; }
+
+.kayit-simge {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--yuvarlak-kucuk);
+  border: 1px solid var(--kenar);
+  background: var(--gece-kutu);
+  object-fit: cover;
+}
+.kayit-ad {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 1.06rem;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  line-height: 1.28;
+}
+.kayit-tur {
+  display: block;
+  font-size: .78rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+  color: var(--kagit-silik);
+  margin-top: 3px;
+}
+.kayit-not {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  color: var(--kagit-soluk);
+  font-size: .92rem;
+}
+.kayit-olcu {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+  color: var(--kagit-silik);
+  font-size: .82rem;
+  white-space: nowrap;
+  text-align: right;
+}
+.kayit-ok {
+  grid-column: 4;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--pirinc);
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: transform .28s var(--yumusak);
+}
+a.kayit:hover .kayit-ok, a.kayit:focus-visible .kayit-ok { transform: translateX(5px); }
+
+/* Yayında olmayan kayıt: soluk ama okunur; üzerine gelince değişmez */
+.kayit-beklemede { color: var(--kagit-soluk); }
+.kayit-beklemede .kayit-ad { color: var(--kagit-soluk); }
+.kayit-beklemede .kayit-ok { color: var(--kenar-kuvvetli); }
+
+/* --- Düğmeler ------------------------------------------------------------- */
+.dugme {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--pirinc);
+  background: linear-gradient(180deg, var(--pirinc-parlak), var(--pirinc));
+  color: #17130a;
+  font-family: var(--yazi);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: .01em;
+  padding: 15px 30px;
+  border-radius: 999px;
+  box-shadow: 0 14px 40px rgba(200, 154, 78, .2);
+  transition: transform var(--hizli) ease, box-shadow var(--hizli) ease;
+}
+.dugme:hover {
+  color: #17130a;
+  border-color: var(--pirinc-parlak);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 48px rgba(200, 154, 78, .3);
+}
+.dugme-sade {
+  background: transparent;
+  color: var(--kagit);
+  border-color: var(--kenar-kuvvetli);
+  box-shadow: none;
+}
+.dugme-sade:hover { color: var(--kagit); border-color: var(--pirinc); box-shadow: none; }
+
+/* --- Hakkında / bağlantılar / alt bilgi ----------------------------------- */
+.hakkinda p { color: var(--kagit-soluk); margin: 0 0 14px; max-width: 62ch; }
+.hakkinda strong { color: var(--kagit); }
+.baglantilar {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+  padding: 0;
+  margin: 22px 0 0;
+  font-size: .92rem;
+}
+.baglantilar a { color: var(--kagit-soluk); border-bottom-color: var(--kenar); }
+.baglantilar a:hover { color: var(--pirinc-parlak); border-bottom-color: var(--pirinc); }
+
+footer {
+  margin-top: clamp(64px, 12vh, 120px);
+  padding: 26px 0 40px;
+  border-top: 1px solid var(--kenar);
+  color: var(--kagit-silik);
+  font-size: .84rem;
+}
+.alt-izgara {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 30px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+footer p { margin: 0; }
+footer a { color: var(--kagit-soluk); border-bottom-color: var(--kenar); }
+
+/* --- Belirme (reveal) -----------------------------------------------------
+   İki yol var, ikisi de aynı sonucu verir:
+     · JS varsa `.belir` öğesine `.geldi` sınıfı eklenir (IntersectionObserver)
+     · JS yoksa `@supports (animation-timeline: view())` kaydırmaya bağlar
+   Hiçbiri yoksa içerik zaten görünür başlar — "boş ekran" riski yok, çünkü
+   `.belir` başlangıçta gizlenmez; yalnızca JS devreye girince gizlenir
+   (bkz. murekkep.js → hazirla()). */
+.belir { --gecikme: 0s; }
+body.js .belir {
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(7px);
+  transition: opacity .7s var(--yumusak) var(--gecikme), transform .7s var(--yumusak) var(--gecikme), filter .7s var(--yumusak) var(--gecikme);
+}
+body.js .belir.geldi { opacity: 1; transform: none; filter: blur(0); }
+body.js .kayit { /* kayıtlar tek tek gelir; gecikme üreticiden `--s` ile gelir */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .55s var(--yumusak), transform .55s var(--yumusak);
+  transition-delay: calc(var(--s, 0) * 55ms);
+}
+body.js .kayit.geldi { opacity: 1; transform: none; }
+
+@supports (animation-timeline: view()) {
+  /* JS gerekmez: bölümler görüş alanına girerken açılır */
+  body:not(.js) .bolum {
+    animation: belir-kaydir .5s linear both;
+    animation-timeline: view();
+    animation-range: entry 4% entry 34%;
+  }
+  @keyframes belir-kaydir {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+/* --- Sayfa geçişi --------------------------------------------------------
+   Vitrinden bir uygulamaya geçerken simge yerinde büyür; ziyaretçi "aynı
+   sitenin içinde" olduğunu hisseder. Yalnızca destekleyen tarayıcıda olur,
+   desteklemeyende anında geçilir. */
+@view-transition { navigation: auto; }
+.morf { view-transition-name: uygulama-simge; }
+::view-transition-old(uygulama-simge), ::view-transition-new(uygulama-simge) {
+  animation-duration: .42s;
+  animation-timing-function: var(--yumusak);
+}
+
+/* --- Duyarlı -------------------------------------------------------------- */
+@media (max-width: 660px) {
+  body { font-size: 16px; }
+  .ustbar-ic {
+    min-height: 0;
+    gap: 2px 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  /* Bağlantılar markanın altına iner: telefonda tek satıra sığmıyorlar ve
+     taşan kısım yatay kaydırma olmadan görünmüyordu. `flex: 1 1 100%` ile tam
+     satır kaplarlar; yine sığmazlarsa kendi içlerinde sarılırlar (320 px). */
+  .ustbar-baglantilar {
+    flex: 1 1 100%;
+    margin-left: 0;
+    gap: 6px 16px;
+    font-size: .8rem;
+  }
+  .ozet > div { flex: 1 1 100%; padding: 13px 0; }
+  .ozet > div + div { border-left: 0; border-top: 1px solid var(--kenar); padding-left: 0; }
+  .kayit {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 3px 14px;
+    padding: 15px 4px;
+  }
+  .kayit-simge { width: 44px; height: 44px; grid-row: 1 / span 3; }
+  .kayit-ad { grid-column: 2; grid-row: 1; }
+  .kayit-not { grid-column: 2; grid-row: 2; }
+  .kayit-olcu { grid-column: 2; grid-row: 3; text-align: left; margin-top: 3px; }
+  .kayit-ok { grid-column: 3; grid-row: 1 / span 3; }
+  .bolum { margin-top: 68px; }
+}
+
+/* --- Hareketi azalt -------------------------------------------------------
+   Her şey anında sonuçlanır. Mürekkep alanı tek kare çizer (bkz. JS):
+   kapalıyken de sayfa "tasarlanmış" görünür. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  body.js .belir, body.js .kayit { opacity: 1; transform: none; filter: none; }
+  .isaret .cizik, .isaret .capraz { stroke-dashoffset: 0; }
+  .isaret .cetvel, .amblem-satir::after { transform: none; }
+}
+
+@media print {
+  body { background: #fff; color: #000; }
+  body::before, body::after, .murekkep, .kaydir-isaret, .kayit-ok { display: none; }
+  .kayit, .bolum { break-inside: avoid; }
+  a { border-bottom: 0; color: #000; }
+}
