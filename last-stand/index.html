@@ -181,33 +181,160 @@
     color: var(--kagit);
   }
   .kart p { margin: 0; font-size: .92rem; color: var(--kagit-soluk); }
-  /* — Ekran görüntüleri ——————————————————————————————————————————————— */
-  .serit {
+  /* — Ekran görüntüleri: temaşa masası ————————————————————————————————————
+     Önceleri düz bir kaydırma şeridiydi: altı kare eşit boyda, hiçbiri
+     "seçili" değil, dokununca hiçbir şey olmuyordu. Şimdi masa gibi çalışır:
+     ortadaki plaka öne kalkar, komşuları geri çekilip soluklanır, altta pirinç
+     cetvel hangi plakada olduğumuzu söyler ve plakaya dokununca kare büyür.
+     Kareler oyunun KENDİ çekimidir; dokunma kareyi değiştirmez, YAKINLAŞTIRIR:
+     telefonda 9:16 bir kare avuç içi kadar kalıyor, asıl iş onu büyütmek. */
+  .masa {
     display: flex;
-    gap: 16px;
+    gap: clamp(12px, 2.4vw, 20px);
     overflow-x: auto;
-    padding: 4px 4px 18px;
+    margin: 0;
+    padding: 30px 4px 12px;
+    list-style: none;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
-  .serit figure { margin: 0; flex: 0 0 auto; width: 224px; scroll-snap-align: center; }
-  .serit img {
-    width: 224px;
-    height: 398px;
-    border-radius: 18px;
+  .masa::-webkit-scrollbar { display: none; }
+  .masa-kart { flex: 0 0 auto; width: clamp(184px, 44vw, 244px); scroll-snap-align: center; margin: 0; }
+  .masa-dugme {
     display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    cursor: zoom-in;
     border: 1px solid var(--kenar);
+    border-radius: var(--yuvarlak);
     background: var(--gece-kutu);
+    overflow: hidden;
+    /* Ortada olmayan plaka bir tık geride ve soluk durur: göz nereye bakacağını
+       cetvelden önce buradan anlar. */
+    transform: translateY(6px) scale(.955);
+    opacity: .66;
+    transition: transform var(--hizli) var(--yumusak), opacity var(--hizli) linear,
+                border-color var(--hizli) linear, box-shadow var(--hizli) var(--yumusak);
   }
-  .serit figcaption {
-    font-size: .78rem;
+  .masa-kart img { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: cover; }
+  .masa-kart[data-aktif] .masa-dugme {
+    transform: translateY(-10px) scale(1);
+    opacity: 1;
+    border-color: rgba(200, 154, 78, .5);
+    box-shadow: 0 28px 54px -20px rgba(0, 0, 0, .85), 0 0 0 1px rgba(238, 201, 130, .16);
+  }
+  .masa-dugme:hover { border-color: var(--kenar-kuvvetli); }
+  .masa-dugme:focus-visible { outline: 2px solid var(--pirinc-parlak); outline-offset: 3px; }
+  .masa-kunye {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 14px 0 0;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
     color: var(--kagit-silik);
-    text-align: center;
-    margin-top: 10px;
+    transition: color var(--hizli) linear;
   }
-  .serit::-webkit-scrollbar { height: 6px; }
-  .serit::-webkit-scrollbar-thumb { background: var(--kenar-kuvvetli); border-radius: 3px; }
-  .kaydirma { display: none; text-align: center; color: var(--kagit-silik); font-size: .82rem; margin: 0; }
+  .masa-kunye b { font-weight: 500; letter-spacing: .06em; color: var(--kagit-soluk); }
+  .masa-kart[data-aktif] .masa-kunye,
+  .masa-kart[data-aktif] .masa-kunye b { color: var(--pirinc-parlak); }
+  /* Cetvel: kaç plaka var, hangisindeyiz. Çentikler aynı zamanda düğme —
+     dördüncü çentiğe basmak dördüncü plakayı ortaya getirir; klavye ile
+     gezinmenin de en kolay yolu bu. Çentikler BETİKTE plakalardan üretilir
+     (ikinci bir yerde sayı tutmak ayrışmanın en kolay yoludur). */
+  .cetvel { display: flex; align-items: center; gap: 4px; margin: 16px 0 0; padding: 0; list-style: none; }
+  .cetvel::before, .cetvel::after { content: ''; height: 1px; flex: 1; background: var(--kenar); }
+  .cetvel button {
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .cetvel button::before {
+    content: '';
+    width: 1px;
+    height: 8px;
+    background: var(--kenar-kuvvetli);
+    transition: width var(--hizli) var(--yumusak), height var(--hizli) var(--yumusak),
+                background var(--hizli) linear;
+  }
+  .cetvel button[aria-current="true"]::before { width: 3px; height: 17px; background: var(--pirinc-parlak); }
+  .cetvel button:focus-visible { outline: 2px solid var(--pirinc-parlak); outline-offset: 2px; }
+  .masa-ipucu { margin: 14px 0 0; font-size: .8rem; color: var(--kagit-silik); }
+  /* Kareler görüş alanına girerken "belirir": kesme değil NETLEŞME (karanlık
+     odada kare çıkarma dili). Bilgi taşımaz, o yüzden desteklemeyen tarayıcıda
+     hiç görünmez — duran hâl zaten doğru hâldir.
+     ⚠️ İki tuzak, ikisi de ölçümle bulundu:
+     1) Kaydırma sürücülü animasyonu kimlik katmanındaki
+        `animation-duration: .001ms` DURDURMAZ: ilerleme süreden değil
+        kaydırmadan gelir. Bu yüzden aşağıda açık `animation: none` bloğu var.
+     2) `view()` EN YAKIN kaydırma kabına bakar. Efekt plakanın (yani `.masa`
+        yatay kaydırıcısının) üstüne konursa blok eksende hep "tam görünür"
+        kalır ve animasyon ölü doğar. Bu yüzden efekt kaydırıcının DIŞINDAKİ
+        sarmalayıcıya biner: masa bütünüyle netleşir. */
+  .masa-saray { position: relative; }
+  @keyframes netleme {
+    from { filter: brightness(.4) saturate(.25) contrast(1.14); opacity: .3; }
+    to { filter: none; opacity: 1; }
+  }
+  @supports (animation-timeline: view()) {
+    .masa-saray {
+      animation: netleme linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 32%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .masa-saray, .buyuk[open] { animation: none !important; }
+  }
+  /* Büyük plaka. Native <dialog>: ESC ile kapanır, odağı içeride tutar ve arka
+     perdeyi kendisi verir — erişilebilirlik için bedava gelen üç şey. */
+  .buyuk {
+    border: 1px solid var(--kenar-kuvvetli);
+    border-radius: var(--yuvarlak);
+    background: var(--gece-ust);
+    color: var(--kagit);
+    padding: 12px;
+    max-width: min(94vw, 560px);
+  }
+  .buyuk::backdrop { background: rgba(4, 5, 7, .84); backdrop-filter: blur(3px); }
+  .buyuk figure { margin: 0; }
+  .buyuk img { display: block; width: 100%; max-height: 68vh; object-fit: contain; border-radius: var(--yuvarlak-kucuk); }
+  .buyuk figcaption { margin-top: 12px; font-size: .8rem; color: var(--kagit-soluk); }
+  .buyuk b {
+    display: block;
+    margin-bottom: 6px;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--pirinc-parlak);
+  }
+  .buyuk-kapat {
+    margin-top: 14px;
+    min-height: 34px;
+    padding: 8px 16px;
+    font: inherit;
+    font-size: .82rem;
+    color: var(--kagit);
+    background: none;
+    border: 1px solid var(--kenar-kuvvetli);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .buyuk-kapat:hover { border-color: var(--pirinc); color: var(--pirinc-parlak); }
+  .buyuk[open] { animation: buyuk-gel .22s var(--yumusak) both; }
+  @keyframes buyuk-gel { from { opacity: 0; transform: scale(.97) translateY(8px); } }
+  @media (max-width: 660px) {
+    .masa-kart { width: 68vw; }
+  }
   /* — Kurulum: sıralı bir akış olduğu için numaralandırma burada anlamlı — */
   ol.adimlar { list-style: none; counter-reset: adim; margin: 0; padding: 0; }
   ol.adimlar li {
@@ -263,7 +390,6 @@
     line-height: 1.55;
   }
   @media (max-width: 640px) {
-    .kaydirma { display: block; margin-top: -6px; }
     .kap { padding-bottom: 56px; }
   }
 </style>
@@ -368,15 +494,67 @@
   </section>
   <section id="ekranlar" class="belir">
     <h2>Ekran görüntüleri</h2>
-    <div class="serit">
-      <figure><img src="gorseller/ekran-01.jpg" alt="Ana menü: kahraman vitrini, altın ve başla düğmesi" loading="lazy"><figcaption>Ana menü ve kahraman</figcaption></figure>
-      <figure><img src="gorseller/ekran-02.jpg" alt="Savaş içi yükseltme paneli dört kartla" loading="lazy"><figcaption>Yükseltme paneli</figcaption></figure>
-      <figure><img src="gorseller/ekran-03.jpg" alt="Boss dalgası duyurusu ve savaş sahnesi" loading="lazy"><figcaption>Boss dalgası</figcaption></figure>
-      <figure><img src="gorseller/ekran-04.jpg" alt="Ödül Merkezi: üç günlük hak ve reklam davetleri" loading="lazy"><figcaption>Ödül Merkezi</figcaption></figure>
-      <figure><img src="gorseller/ekran-05.jpg" alt="Kahraman seçim ekranı: dört kahraman" loading="lazy"><figcaption>Dört kahraman</figcaption></figure>
-      <figure><img src="gorseller/ekran-06.jpg" alt="Cephanelik ekranı: silah hatları ve evrimler" loading="lazy"><figcaption>Cephanelik: silah evrimi</figcaption></figure>
+    <div class="masa-saray">
+      <ol class="masa">
+        <li class="masa-kart" data-ad="Ana menü">
+          <button class="masa-dugme" type="button" data-ad="01 · ANA MENÜ"
+                  data-not="Kahraman vitrini, altın ve tek başla düğmesi."
+                  data-buyuk="gorseller/ekran-01.jpg" aria-label="Ana menü karesini büyüt">
+            <img src="gorseller/ekran-01.jpg" alt="Ana menü: kahraman vitrini, altın çubuğu ve başla düğmesi" loading="lazy">
+          </button>
+          <p class="masa-kunye"><b>01</b> Ana menü</p>
+        </li>
+        <li class="masa-kart" data-ad="Yükseltme paneli">
+          <button class="masa-dugme" type="button" data-ad="02 · YÜKSELTME"
+                  data-not="Panel canlı savaşın üstünde açılır: her altın güce dönüşür."
+                  data-buyuk="gorseller/ekran-02.jpg" aria-label="Yükseltme karesini büyüt">
+            <img src="gorseller/ekran-02.jpg" alt="Canlı savaş ve üstünde yükseltme paneli: hasar, ateş hızı, can, kritik kartları" loading="lazy">
+          </button>
+          <p class="masa-kunye"><b>02</b> Yükseltme</p>
+        </li>
+        <li class="masa-kart" data-ad="Boss dalgası">
+          <button class="masa-dugme" type="button" data-ad="03 · BOSS DALGASI"
+                  data-not="Boss şarj kurar, şerit dolar; kesersen boss kilitlenir."
+                  data-buyuk="gorseller/ekran-03.jpg" aria-label="Boss savaşı karesini büyüt">
+            <img src="gorseller/ekran-03.jpg" alt="Boss savaşı: tank boss, yerde kesilebilir şarj telegrafı ve aşırı yük göstergesi" loading="lazy">
+          </button>
+          <p class="masa-kunye"><b>03</b> Boss dalgası</p>
+        </li>
+        <li class="masa-kart" data-ad="Ödül Merkezi">
+          <button class="masa-dugme" type="button" data-ad="04 · ÖDÜL MERKEZİ"
+                  data-not="Günlük haklar ve reklam davetleri; reklam yalnızca sen istediğinde."
+                  data-buyuk="gorseller/ekran-04.jpg" aria-label="Ödül Merkezi karesini büyüt">
+            <img src="gorseller/ekran-04.jpg" alt="Ödül Merkezi: günlük haklar ve reklam davetleri" loading="lazy">
+          </button>
+          <p class="masa-kunye"><b>04</b> Ödül Merkezi</p>
+        </li>
+        <li class="masa-kart" data-ad="Dört kahraman">
+          <button class="masa-dugme" type="button" data-ad="05 · DÖRT KAHRAMAN"
+                  data-not="Dört kahraman, dört güç kastı; seçim kayda girer."
+                  data-buyuk="gorseller/ekran-05.jpg" aria-label="Kahraman seçimi karesini büyüt">
+            <img src="gorseller/ekran-05.jpg" alt="Kahraman seçimi: dört kahraman ve imza güçleri" loading="lazy">
+          </button>
+          <p class="masa-kunye"><b>05</b> Dört kahraman</p>
+        </li>
+        <li class="masa-kart" data-ad="Cephanelik">
+          <button class="masa-dugme" type="button" data-ad="06 · CEPHANELİK"
+                  data-not="Üç hat, iki evrim: seçim kalıcı, geri dönüşü yok."
+                  data-buyuk="gorseller/ekran-06.jpg" aria-label="Cephanelik karesini büyüt">
+            <img src="gorseller/ekran-06.jpg" alt="Cephanelik: üç silah hattı ve evrimleri" loading="lazy">
+          </button>
+          <p class="masa-kunye"><b>06</b> Cephanelik</p>
+        </li>
+      </ol>
+      <ol class="cetvel"></ol>
+      <p class="masa-ipucu">Plakaya dokun: kare büyür ve ne anlattığını yazar. Cetvelden de atlanır.</p>
     </div>
-    <p class="kaydirma">← yana kaydır →</p>
+    <dialog class="buyuk" id="plaka-buyuk">
+      <figure>
+        <img id="buyuk-gorsel" src="gorseller/ekran-01.jpg" alt="">
+        <figcaption><b id="buyuk-ad"></b><span id="buyuk-not"></span></figcaption>
+      </figure>
+      <form method="dialog"><button class="buyuk-kapat" type="submit">Kapat</button></form>
+    </dialog>
   </section>
   <section id="kurulum" class="belir">
     <h2>Kurulum — bir dakika</h2>

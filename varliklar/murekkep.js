@@ -11,6 +11,8 @@
      3. Sayaçları hedefe kadar sayar.
      4. Üst çubuğa "kaydırıldı" sınıfını verir.
      5. Satır zeminindeki mürekkep lekesinin merkezini imlece bağlar.
+     6. Ekran görüntüsü masasını işletir: cetveli plakalardan üretir, ortadaki
+        plakayı işaretler ve dokunulan kareyi büyütür.
 
    Performans sözleşmesi (ödüllü sitelerin jüri kuralı: 60 fps tutmayan
    gösteri kaybeder):
@@ -356,4 +358,113 @@
       satir.style.setProperty('--my', (((olay.clientY - kutu.top) / kutu.height) * 100) + '%');
     }, { passive: true });
   });
+
+  /* --------------------------------------------------------------------------
+     6) Temaşa masası (ekran görüntüleri)
+     ------------------------------------------------------------------------
+     Plakalar eskiden düz bir kaydırma listesiydi: hiçbiri "seçili" değildi,
+     aktif kare diye bir kavram yoktu ve dokununca hiçbir şey olmuyordu.
+     Burada iki iş yapılır:
+       · cetvel çentikleri PLAKALARDAN üretilir (sayıyı iki yerde tutmak
+         ayrışmanın en kolay yoludur) ve ortadaki plaka işaretlenir; ok tuşları
+         bir plaka ileri/geri gider;
+       · plakaya dokunmak kareyi büyütür (native <dialog>: ESC, odak tuzağı ve
+         arka perde tarayıcıdan gelir, biz yazmıyoruz).
+
+     Vitrin sayfasında `.masa` yoktur; bölüm sessizce çıkar (boş liste üzerinde
+     dönen bir döngü hiçbir şey yapmaz).
+     ------------------------------------------------------------------------ */
+  var masaKokleri = document.querySelectorAll('.masa-saray');
+  var buyukPlaka = document.getElementById('plaka-buyuk');
+
+  function plakayiGetir(masa, kart) {
+    var sol = kart.offsetLeft + kart.offsetWidth / 2 - masa.clientWidth / 2;
+    if (!masa.scrollTo) { masa.scrollLeft = sol; return; }
+    masa.scrollTo({ left: sol, behavior: 'smooth' });
+  }
+
+  masaKokleri.forEach(function (saray) {
+    var masa = saray.querySelector('.masa');
+    var cetvel = saray.querySelector('.cetvel');
+    if (!masa) return;
+    var kartlar = Array.prototype.slice.call(masa.querySelectorAll('.masa-kart'));
+    if (!kartlar.length) return;
+    var centikler = [];
+
+    if (cetvel) {
+      kartlar.forEach(function (kart, sira) {
+        var dugme = document.createElement('button');
+        dugme.type = 'button';
+        dugme.setAttribute('aria-label',
+          'Plaka ' + (sira + 1) + ': ' + (kart.getAttribute('data-ad') || ''));
+        dugme.addEventListener('click', function () { plakayiGetir(masa, kart); });
+        var li = document.createElement('li');
+        li.appendChild(dugme);
+        cetvel.appendChild(li);
+        centikler.push(dugme);
+      });
+    }
+
+    // Ortadaki plaka "seçili"dir: öne kalkar, künyesi pirinçe döner.
+    var tazele = function () {
+      var orta = masa.scrollLeft + masa.clientWidth / 2;
+      var enIyi = 0;
+      var enAz = Infinity;
+      kartlar.forEach(function (kart, sira) {
+        var uzaklik = Math.abs(kart.offsetLeft + kart.offsetWidth / 2 - orta);
+        if (uzaklik < enAz) { enAz = uzaklik; enIyi = sira; }
+      });
+      kartlar.forEach(function (kart, sira) {
+        if (sira === enIyi) kart.setAttribute('data-aktif', '');
+        else kart.removeAttribute('data-aktif');
+      });
+      centikler.forEach(function (dugme, sira) {
+        dugme.setAttribute('aria-current', sira === enIyi ? 'true' : 'false');
+      });
+    };
+
+    masa.addEventListener('scroll', function () {
+      window.requestAnimationFrame(tazele);
+    }, { passive: true });
+    window.addEventListener('resize', tazele);
+    tazele();
+
+    // Kaydırma kabı klavyeyle odaklanabilir olmalı (erişilebilirlik); ok tuşları
+    // burada hazır bir kaydırma yerine bir PLAKA ilerletir: telefonda yapışan
+    // kareler masaüstünde de hizalı kalsın.
+    masa.tabIndex = 0;
+    masa.addEventListener('keydown', function (olay) {
+      if (olay.key !== 'ArrowLeft' && olay.key !== 'ArrowRight') return;
+      var suanki = 0;
+      kartlar.forEach(function (kart, sira) {
+        if (kart.hasAttribute('data-aktif')) suanki = sira;
+      });
+      var hedef = olay.key === 'ArrowRight' ? suanki + 1 : suanki - 1;
+      if (hedef < 0 || hedef >= kartlar.length) return;
+      olay.preventDefault();
+      plakayiGetir(masa, kartlar[hedef]);
+    });
+  });
+
+  if (buyukPlaka && buyukPlaka.showModal) {
+    var buyukGorsel = document.getElementById('buyuk-gorsel');
+    var buyukAd = document.getElementById('buyuk-ad');
+    var buyukNot = document.getElementById('buyuk-not');
+    document.querySelectorAll('.masa-dugme').forEach(function (dugme) {
+      dugme.addEventListener('click', function () {
+        var gorsel = dugme.querySelector('img');
+        if (buyukGorsel) {
+          buyukGorsel.setAttribute('src', dugme.getAttribute('data-buyuk'));
+          buyukGorsel.setAttribute('alt', gorsel ? gorsel.alt : '');
+        }
+        if (buyukAd) buyukAd.textContent = dugme.getAttribute('data-ad') || '';
+        if (buyukNot) buyukNot.textContent = dugme.getAttribute('data-not') || '';
+        buyukPlaka.showModal();
+      });
+    });
+    // Arka perdeye dokunmak kapatır; panelin içine dokunmak kapatmaz.
+    buyukPlaka.addEventListener('click', function (olay) {
+      if (olay.target === buyukPlaka) buyukPlaka.close();
+    });
+  }
 })();
