@@ -1,32 +1,9 @@
-/* ============================================================================
-   4SL4N Studio — paylaşılan kimlik katmanı
-   ----------------------------------------------------------------------------
-   Bu dosya **iki sayfanın ortak dilidir**: stüdyo vitrini (kök) ve her
-   uygulamanın indirme sayfası (alt dizin). İkisi de buradan beslenir ki
-   vitrinden bir uygulamaya geçen ziyaretçi farklı bir siteye düşmesin.
 
-   Kimlik: "Mürekkep Defteri". Zemin gece mürekkebi, yazı kâğıt beyazı, vurgu
-   pirinç. Tipografi iki aileye ayrılır ve rolleri karışmaz:
-     · Fraunces  → yalnızca büyük cümleler (bir sayfada 3-4 kez görünür)
-     · IBM Plex Mono → geri kalan her şey (kayıt defteri dili)
-   Sayılar `tabular-nums`: sürüm/boyut/tarih sütunları hizasız durmasın.
 
-   Yerleşim dili kart değil **kayıt satırı**: gölge yok, tekrar eden yuvarlak
-   kutu yok, her şey ince çizgi ve hizayla ayrılır. Süs yok; hareket yalnızca
-   bilgi verdiğinde var (mürekkep alanı, satırın yerine oturması, sayaç).
 
-   Renkler ve ölçüler tek yerde: aşağıdaki :root bloğu. Yeni bir bileşen
-   yazarken ham renk kullanma, değişken kullan.
-   ========================================================================== */
-
-/* Yazı tipi tanımları (@font-face) burada DEĞİL, `yazitipleri.css` içinde:
-   o dosya `scripts/yazitipi_indir.sh` tarafından indirilen dosyalardan üretilir
-   ve alt küme (unicode-range) bilgisiyle birlikte gelir. İki yerde tanımlamak
-   çift indirmeye ve sessiz tutarsızlığa yol açardı. HTML iki dosyayı da
-   sırayla bağlar: önce yazitipleri.css, sonra kimlik.css. */
 
 :root {
-  /* Renkler */
+  
   --gece: #07080a;
   --gece-ust: #0d0f13;
   --gece-kutu: #12151a;
@@ -39,17 +16,17 @@
   --pirinc-parlak: #eec982;
   --iyi: #7fb069;
 
-  /* Ölçü */
+  
   --olcu: 1060px;
   --bosluk: clamp(20px, 5vw, 40px);
   --yuvarlak: 14px;
   --yuvarlak-kucuk: 10px;
 
-  /* Yazı tipleri: ikisi de yerelden gelir (bkz. yazitipleri.css) */
+  
   --yazi: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --yazi-baslik: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
 
-  /* Hareket: tek yerde tanımlı, `prefers-reduced-motion` hepsini kapatır */
+  
   --yumusak: cubic-bezier(.2, .7, .2, 1);
   --hizli: .18s;
 }
@@ -60,7 +37,7 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   color-scheme: dark;
-  /* Sabit üst çubuk bağlantı hedeflerinin üstüne binmesin */
+  
   scroll-padding-top: 92px;
 }
 
@@ -76,9 +53,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Kâğıt hissi: iki yumuşak ışık + çok hafif yatay defter çizgileri.
-   Görsel dosyası yok; hepsi iki gradient'te. Sabit (fixed) olduğu için
-   kaydırırken doku "kâğıt" gibi durur, sayfayla kaymaz. */
+
 body::before {
   content: '';
   position: fixed;
@@ -102,7 +77,7 @@ body::after {
     rgba(237, 230, 215, .045) 0 1px,
     transparent 1px 34px
   );
-  /* Kenarlarda eriyen defter çizgileri. Safari hâlâ ön ekli sürümü istiyor. */
+  
   -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
   mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
 }
@@ -125,7 +100,7 @@ a:hover { color: var(--pirinc-parlak); border-bottom-color: var(--pirinc); }
 
 h1, h2, h3 { font-weight: 500; }
 
-/* Metin seçimi, sayı hizası, ölçü birimleri */
+
 .sayi, .kayit-olcu, .ozet dd, time { font-variant-numeric: tabular-nums; }
 
 .ortak {
@@ -135,7 +110,7 @@ h1, h2, h3 { font-weight: 500; }
   padding: 0 var(--bosluk);
 }
 
-/* --- Sabit üst çubuk ------------------------------------------------------ */
+
 .ustbar {
   position: sticky;
   top: 0;
@@ -146,12 +121,9 @@ h1, h2, h3 { font-weight: 500; }
   border-bottom: 1px solid transparent;
   transition: border-color .3s ease, background-color .3s ease;
 }
-/* Kaydırınca çizgi belirir: sayfanın "nerede olduğunu" söyleyen tek işaret */
+
 .ustbar.kaydi { border-bottom-color: var(--kenar); }
-/* Üst çubuk **sarılabilir** olmalı. Sabit tek satır varsayımı, telefonda dört
-   bağlantıyı sağdan taşırıyordu: en sondaki bağlantı ("Gizlilik") kesiliyor ve
-   sayfayı yatay kaydırmadan görünmüyordu. Marka ve bağlantılar sığmadığında
-   alt satıra iner (bkz. `max-width: 660px` bloğu). */
+
 .ustbar-ic {
   display: flex;
   align-items: center;
@@ -186,12 +158,7 @@ h1, h2, h3 { font-weight: 500; }
   font-size: .86rem;
   letter-spacing: .01em;
 }
-/* Dokunma hedefi (WCAG 2.2 SC 2.5.8): metin yüksekliğinde kalan bağlantılar
-   24×24 CSS px eşiğinin altında kalıyordu — üst çubuk telefonda 22 px, altbilgi
-   19–20 px. Hedef büyütülürken DÜZEN değişmez: fazladan yükseklik yalnız yukarı
-   doğru eklenir (`padding-block-start` + negatif `margin-block-start`, ikisi eşit)
-   ve metin kutunun dibine yaslanır. Böylece metnin ve alt çizginin yeri
-   piksel piksel aynı kalır, üst çubuğun satır yüksekliği de büyümez. */
+
 .ustbar-baglantilar a {
   display: inline-flex;
   align-items: flex-end;
@@ -203,7 +170,7 @@ h1, h2, h3 { font-weight: 500; }
 }
 .ustbar-baglantilar a:hover { color: var(--kagit); border-bottom-color: var(--kenar-kuvvetli); }
 
-/* --- Kahraman: mürekkep alanı --------------------------------------------- */
+
 .kahraman {
   position: relative;
   min-height: min(100svh, 900px);
@@ -213,8 +180,7 @@ h1, h2, h3 { font-weight: 500; }
   overflow: hidden;
   overflow: clip;
 }
-/* Tuvalin kendisi dekor değil: alanın üstünde metin okunur kalsın diye
-   üstüne mürekkep yönünde bir karartma serilir. */
+
 .murekkep {
   position: absolute;
   inset: 0;
@@ -222,7 +188,7 @@ h1, h2, h3 { font-weight: 500; }
   height: 100%;
   display: block;
   z-index: 0;
-  /* Tuvalin arkasında metin var: işaretçi olayları içeriğe geçmeli. */
+  
   pointer-events: none;
 }
 .kahraman::after {
@@ -238,9 +204,7 @@ h1, h2, h3 { font-weight: 500; }
   z-index: 2;
   width: 100%;
 }
-/* WebGL yoksa ya da hareket kapalıysa: tuval gizlenir, yerini CSS mürekkep
-   yıkaması alır. Süs değil zorunluluk — aksi hâlde okuyucu boş siyah ekran
-   görürdü. */
+
 .murekkep-yok .murekkep { display: none; }
 .murekkep-yok .kahraman::after {
   background:
@@ -297,7 +261,7 @@ h1, h2, h3 { font-weight: 500; }
   animation: cetvel .9s var(--yumusak) .35s both;
 }
 
-/* Büyük cümle: sayfada en fazla birkaç kez görünen tek sesli vurgu. */
+
 .buyuk {
   font-family: var(--yazi-baslik);
   font-size: clamp(2.5rem, 7.6vw, 5.2rem);
@@ -320,7 +284,7 @@ h1, h2, h3 { font-weight: 500; }
 }
 .giris strong { color: var(--kagit); font-weight: 600; }
 
-/* Kaydırma işareti: aşağıda içerik olduğunu söyleyen tek ipucu */
+
 .kaydir-isaret {
   margin-top: clamp(30px, 5vh, 54px);
   display: flex;
@@ -343,7 +307,7 @@ h1, h2, h3 { font-weight: 500; }
   50% { transform: scaleX(1); opacity: 1; }
 }
 
-/* --- Özet sayaçları ------------------------------------------------------- */
+
 .ozet {
   list-style: none;
   display: flex;
@@ -376,7 +340,7 @@ h1, h2, h3 { font-weight: 500; }
   line-height: 1;
 }
 
-/* --- Bölümler ------------------------------------------------------------- */
+
 .bolum { margin-top: clamp(60px, 11vh, 116px); }
 .bolum > h2 {
   font-family: var(--yazi-baslik);
@@ -392,7 +356,7 @@ h1, h2, h3 { font-weight: 500; }
   max-width: 52ch;
 }
 
-/* --- Kayıt satırı --------------------------------------------------------- */
+
 .kayitlar { border-top: 1px solid var(--kenar); }
 .kayit {
   position: relative;
@@ -404,8 +368,7 @@ h1, h2, h3 { font-weight: 500; }
   border-bottom: 1px solid var(--kenar);
   isolation: isolate;
 }
-/* Satırın zemininde imleci izleyen çok hafif mürekkep lekesi (JS `--mx/--my`
-   yazar; JS yoksa görünmez, hiçbir şey bozulmaz). */
+
 a.kayit::before {
   content: '';
   position: absolute;
@@ -416,7 +379,7 @@ a.kayit::before {
   transition: opacity .25s ease;
 }
 a.kayit:hover::before, a.kayit:focus-visible::before { opacity: 1; }
-/* Soldan büyüyen pirinç çizgi: "bu satır açılabilir" bilgisini verir */
+
 a.kayit::after {
   content: '';
   position: absolute;
@@ -485,12 +448,12 @@ a.kayit { cursor: pointer; }
 }
 a.kayit:hover .kayit-ok, a.kayit:focus-visible .kayit-ok { transform: translateX(5px); }
 
-/* Yayında olmayan kayıt: soluk ama okunur; üzerine gelince değişmez */
+
 .kayit-beklemede { color: var(--kagit-soluk); }
 .kayit-beklemede .kayit-ad { color: var(--kagit-soluk); }
 .kayit-beklemede .kayit-ok { color: var(--kenar-kuvvetli); }
 
-/* --- Düğmeler ------------------------------------------------------------- */
+
 .dugme {
   display: inline-flex;
   align-items: center;
@@ -521,7 +484,7 @@ a.kayit:hover .kayit-ok, a.kayit:focus-visible .kayit-ok { transform: translateX
 }
 .dugme-sade:hover { color: var(--kagit); border-color: var(--pirinc); box-shadow: none; }
 
-/* --- Hakkında / bağlantılar / alt bilgi ----------------------------------- */
+
 .hakkinda p { color: var(--kagit-soluk); margin: 0 0 14px; max-width: 62ch; }
 .hakkinda strong { color: var(--kagit); }
 .baglantilar {
@@ -551,24 +514,14 @@ footer {
   justify-content: space-between;
 }
 footer p { margin: 0; }
-/* Altbilgi bağlantıları da satır yüksekliğindeydi (19–20 px). Burada
-   `inline-flex` KULLANILMAZ: atomik kutu satır kaydırır ve altbilgi üç satıra
-   düşer (ölçüldü: 171 → 198 px). Satır içi kutuya yalnız YUKARI dolgu vermek
-   hedefi büyütür ama satır düzenini ve alt çizginin yerini hiç değiştirmez
-   (ölçüldü: altbilgi 171 px aynı, taban çizgisi aynı). */
+
 footer a {
   padding-block-start: 7px;
   color: var(--kagit-soluk);
   border-bottom-color: var(--kenar);
 }
 
-/* --- Belirme (reveal) -----------------------------------------------------
-   İki yol var, ikisi de aynı sonucu verir:
-     · JS varsa `.belir` öğesine `.geldi` sınıfı eklenir (IntersectionObserver)
-     · JS yoksa `@supports (animation-timeline: view())` kaydırmaya bağlar
-   Hiçbiri yoksa içerik zaten görünür başlar — "boş ekran" riski yok, çünkü
-   `.belir` başlangıçta gizlenmez; yalnızca JS devreye girince gizlenir
-   (bkz. murekkep.js → hazirla()). */
+
 .belir { --gecikme: 0s; }
 body.js .belir {
   opacity: 0;
@@ -577,7 +530,7 @@ body.js .belir {
   transition: opacity .7s var(--yumusak) var(--gecikme), transform .7s var(--yumusak) var(--gecikme), filter .7s var(--yumusak) var(--gecikme);
 }
 body.js .belir.geldi { opacity: 1; transform: none; filter: blur(0); }
-body.js .kayit { /* kayıtlar tek tek gelir; gecikme üreticiden `--s` ile gelir */
+body.js .kayit { 
   opacity: 0;
   transform: translateY(10px);
   transition: opacity .55s var(--yumusak), transform .55s var(--yumusak);
@@ -586,7 +539,7 @@ body.js .kayit { /* kayıtlar tek tek gelir; gecikme üreticiden `--s` ile gelir
 body.js .kayit.geldi { opacity: 1; transform: none; }
 
 @supports (animation-timeline: view()) {
-  /* JS gerekmez: bölümler görüş alanına girerken açılır */
+  
   body:not(.js) .bolum {
     animation: belir-kaydir .5s linear both;
     animation-timeline: view();
@@ -598,10 +551,7 @@ body.js .kayit.geldi { opacity: 1; transform: none; }
   }
 }
 
-/* --- Sayfa geçişi --------------------------------------------------------
-   Vitrinden bir uygulamaya geçerken simge yerinde büyür; ziyaretçi "aynı
-   sitenin içinde" olduğunu hisseder. Yalnızca destekleyen tarayıcıda olur,
-   desteklemeyende anında geçilir. */
+
 @view-transition { navigation: auto; }
 .morf { view-transition-name: uygulama-simge; }
 ::view-transition-old(uygulama-simge), ::view-transition-new(uygulama-simge) {
@@ -609,7 +559,7 @@ body.js .kayit.geldi { opacity: 1; transform: none; }
   animation-timing-function: var(--yumusak);
 }
 
-/* --- Duyarlı -------------------------------------------------------------- */
+
 @media (max-width: 660px) {
   body { font-size: 16px; }
   .ustbar-ic {
@@ -618,9 +568,7 @@ body.js .kayit.geldi { opacity: 1; transform: none; }
     padding-top: 10px;
     padding-bottom: 10px;
   }
-  /* Bağlantılar markanın altına iner: telefonda tek satıra sığmıyorlar ve
-     taşan kısım yatay kaydırma olmadan görünmüyordu. `flex: 1 1 100%` ile tam
-     satır kaplarlar; yine sığmazlarsa kendi içlerinde sarılırlar (320 px). */
+  
   .ustbar-baglantilar {
     flex: 1 1 100%;
     margin-left: 0;
@@ -642,9 +590,7 @@ body.js .kayit.geldi { opacity: 1; transform: none; }
   .bolum { margin-top: 68px; }
 }
 
-/* --- Hareketi azalt -------------------------------------------------------
-   Her şey anında sonuçlanır. Mürekkep alanı tek kare çizer (bkz. JS):
-   kapalıyken de sayfa "tasarlanmış" görünür. */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .001ms !important;

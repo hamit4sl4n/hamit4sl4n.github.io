@@ -1,50 +1,17 @@
-/* ============================================================================
-   4SL4N Studio — mürekkep alanı ve sayfa hareketleri
-   ----------------------------------------------------------------------------
-   Bağımsız (dependency yok), kendi barındırılan tek betik. Kütüphane yok:
-   sayfa ağırlığı ve yayın kapısının denetleyebildiği yüzey küçük kalsın.
 
-   Ne yapar:
-     1. Kahraman bölümündeki tuvali WebGL2 ile çizer: imlece tepki veren,
-        kaydırdıkça çözülen bir mürekkep alanı.
-     2. Kayıt satırlarını ve bölümleri görüş alanına girince belirtir (reveal).
-     3. Sayaçları hedefe kadar sayar.
-     4. Üst çubuğa "kaydırıldı" sınıfını verir.
-     5. Satır zeminindeki mürekkep lekesinin merkezini imlece bağlar.
-     6. Ekran görüntüsü masasını işletir: cetveli plakalardan üretir, ortadaki
-        plakayı işaretler ve dokunulan kareyi büyütür.
-
-   Performans sözleşmesi (ödüllü sitelerin jüri kuralı: 60 fps tutmayan
-   gösteri kaybeder):
-     · Cihaz piksel oranı 1.5'te sınırlanır (telefonda 1.0) — tuvalin kare
-       çizimi bu yüzden ekranın 4 katı iş çıkarmaz.
-     · Tuval yalnızca görünürken ve sekme öndeyken çizilir; kaydırıp
-       geçtiğinde döngü tamamen durur (pil ve işlemci boşa yanmaz).
-     · Kare süresi ölçülür; ilk kareler yavaşsa çözünürlük kademeli düşürülür.
-     · `prefers-reduced-motion` varsa tek kare çizilir ve döngü hiç başlamaz.
-     · WebGL yoksa/hata verirse `murekkep-yok` sınıfı eklenir; CSS'teki statik
-       mürekkep yıkaması devreye girer — sayfa boş kalmaz.
-
-   Yayın kapısı bu dosyada dinamik kod çalıştıran, DOM'a ham metin basan, ağa
-   çıkan kalıpları ve uzak adresleri arar; bulursa yayını durdurur. Bu yüzden
-   aşağıda hiçbir yerde metin düğümü dışında DOM yazımı ve ağ çağrısı yok
-   (bkz. test/guvenlik_test.dart).
-   ========================================================================== */
 
 (function () {
   'use strict';
 
   var kok = document.documentElement;
-  // `body.js` işareti, CSS'in "JavaScript var" dalını açar. Betik yüklenmezse
-  // hiçbir içerik gizlenmez: belirme animasyonları yalnızca bu sınıfla devreye
-  // girer, dolayısıyla boş sayfa riski yok.
+  
+  
+  
   document.body.classList.add('js');
 
   var azHareket = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* --------------------------------------------------------------------------
-     1) Mürekkep alanı
-     ------------------------------------------------------------------------ */
+  
   var tuval = document.querySelector('.murekkep');
 
   var GOLGE_DIKEY = [
@@ -81,15 +48,15 @@
     '  vec2 p = (gl_FragCoord.xy - 0.5 * uCozunurluk.xy) / uCozunurluk.y;',
     '  float oran = uCozunurluk.x / uCozunurluk.y;',
     '  float t = uZaman * 0.055;',
-    // İki katmanlı dönen gürultü: mürekkebin "akma" yönü buradan gelir.
+    
     '  vec2 q = vec2(fbm(p * 1.7 + vec2(t, -t * 0.6)),',
     '                fbm(p * 1.7 + vec2(5.2 - t * 0.7, 1.3 + t * 0.4)));',
-    // İmleç bir uç gibi davranır: yakınındaki alanı iter.
+    
     '  vec2 imlec = (uImlec - 0.5) * vec2(oran, 1.0) * 2.0;',
     '  float uzaklik = length(p - imlec);',
     '  float itme = exp(-uzaklik * 3.2);',
     '  q += itme * 0.42 * vec2(cos(uZaman * 0.9), sin(uZaman * 0.7));',
-    // Kaydırma alanı aşağı doğru çözer: sayfa ilerledikçe mürekkep dağılır.
+    
     '  float alan = fbm(p * 2.3 + q * 1.55 + vec2(0.0, -uKaydirma * 1.1));',
     '  float tel = smoothstep(0.44, 0.96, alan);',
     '  float sicak = smoothstep(0.54, 1.0, alan + itme * 0.45);',
@@ -97,7 +64,7 @@
     '  vec3 pirinc = vec3(0.72, 0.55, 0.28);',
     '  vec3 renk = mix(murekkep, pirinc, sicak * 0.72);',
     '  renk += tel * 0.10 * vec3(0.92, 0.88, 0.80);',
-    // Kâğıt greni: düz gradyan yerine dokunun kendisi.
+    
     '  renk += (karistir(gl_FragCoord.xy * 0.71) - 0.5) * 0.022;',
     '  float vinyet = smoothstep(1.28, 0.30, length(uv - 0.5) * 1.55);',
     '  renk *= mix(0.42, 1.0, vinyet);',
@@ -139,8 +106,8 @@
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
     gl.useProgram(program);
 
-    // Tam ekran üçgen: dört köşeli dikdörtgen yerine üç köşe yeter, bir
-    // üçgen daha az rasterize edilir.
+    
+    
     var vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
     var tampon = gl.createBuffer();
@@ -166,8 +133,8 @@
 
   function tuvaliAyarla(alan) {
     var gl = alan.gl;
-    // Cihaz piksel oranı sınırı: en büyük kazanç burada. 3x ekranda tam
-    // çözünürlük çizmek, gözle görülür fark yaratmadan 9 kat iş demek.
+    
+    
     var oran = Math.min(window.devicePixelRatio || 1, alan.oran);
     var genislik = Math.max(1, Math.round(tuval.clientWidth * oran));
     var yukseklik = Math.max(1, Math.round(tuval.clientHeight * oran));
@@ -182,8 +149,8 @@
   function kareCiz(alan) {
     var gl = alan.gl;
     var saniye = (performance.now() - alan.baslangic) / 1000;
-    // İmleç yumuşatılır: keskin takip "fare imleci" hissi verir, gecikmeli
-    // takip "mürekkep" hissi verir.
+    
+    
     alan.imlec[0] += (alan.imlecHedef[0] - alan.imlec[0]) * 0.06;
     alan.imlec[1] += (alan.imlecHedef[1] - alan.imlec[1]) * 0.06;
     var kaydirma = Math.min(1, window.scrollY / Math.max(1, window.innerHeight));
@@ -196,7 +163,7 @@
   function murekkepBaslat() {
     var alan = alaniBaslat();
     if (!alan) {
-      // Geri düşme: CSS'teki statik mürekkep yıkaması görünür.
+      
       kok.classList.add('murekkep-yok');
       return;
     }
@@ -211,8 +178,8 @@
     function dongu(simdi) {
       if (!calisiyor) return;
       pencere = window.requestAnimationFrame(dongu);
-      // Kare süresi ölçümü: ilk 60 karenin ortalaması 26 ms'yi geçerse
-      // çözünürlük düşürülür (yavaş cihazda gösteri yerine akıcılık kazanır).
+      
+      
       if (onceki && alan.yavas < 60) {
         alan.yavas += 1;
         if (alan.yavas === 60 && simdi - alan.baslangic > 60 * 26) {
@@ -237,13 +204,13 @@
     }
 
     if (azHareket.matches) {
-      kareCiz(alan); // tek kare: statik ama tasarlanmış
+      kareCiz(alan); 
     } else {
       basla();
     }
 
-    // Görünürlük kapıları: tuval ekrandan çıkınca ve sekme arkaya düşünce
-    // çizim tamamen durur.
+    
+    
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (girisler) {
         gorunur = girisler[0].isIntersecting;
@@ -257,13 +224,13 @@
       if (azHareket.matches) { dur(); kareCiz(alan); } else { basla(); }
     });
 
-    // İmleç: sayfa genelinde dinlenir, yalnızca kahraman görünürken önemli.
+    
     window.addEventListener('pointermove', function (olay) {
       alan.imlecHedef[0] = olay.clientX / Math.max(1, window.innerWidth);
       alan.imlecHedef[1] = 1 - olay.clientY / Math.max(1, window.innerHeight);
     }, { passive: true });
 
-    // Boyut değişimi: ResizeObserver + kare başına bir kez ayar.
+    
     var bekleyen = null;
     var yeniden = function () {
       if (bekleyen) window.cancelAnimationFrame(bekleyen);
@@ -278,16 +245,14 @@
 
   murekkepBaslat();
 
-  /* --------------------------------------------------------------------------
-     2) Belirme (reveal)
-     ------------------------------------------------------------------------ */
+  
   var belirenler = document.querySelectorAll('.belir, .kayit');
   if ('IntersectionObserver' in window && belirenler.length) {
     var gozlemci = new IntersectionObserver(function (girisler, kendisi) {
       girisler.forEach(function (giris) {
         if (!giris.isIntersecting) return;
         giris.target.classList.add('geldi');
-        kendisi.unobserve(giris.target); // bir kez: geri kaydırınca tekrar oynamaz
+        kendisi.unobserve(giris.target); 
       });
     }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
     belirenler.forEach(function (oge) { gozlemci.observe(oge); });
@@ -295,15 +260,13 @@
     belirenler.forEach(function (oge) { oge.classList.add('geldi'); });
   }
 
-  /* --------------------------------------------------------------------------
-     3) Sayaçlar
-     ------------------------------------------------------------------------ */
+  
   var sayaclar = document.querySelectorAll('[data-sayi]');
   sayaclar.forEach(function (oge) {
     var hedef = parseInt(oge.getAttribute('data-sayi'), 10);
     if (isNaN(hedef)) return;
     var yazi = oge.textContent;
-    oge.setAttribute('aria-label', yazi); // ekran okuyucu hep son değeri duyar
+    oge.setAttribute('aria-label', yazi); 
     if (azHareket.matches || hedef === 0) return;
 
     var basladi = false;
@@ -314,8 +277,8 @@
       var baslangic = performance.now();
       var adim = function (simdi) {
         var oran = Math.min(1, (simdi - baslangic) / sure);
-        // Son değere yumuşak oturma (ease-out): mekanik sayım yerine "yerine
-        // oturma" hissi.
+        
+        
         var yumusak = 1 - Math.pow(1 - oran, 3);
         oge.textContent = String(Math.round(hedef * yumusak));
         if (oran < 1) window.requestAnimationFrame(adim);
@@ -334,9 +297,7 @@
     }
   });
 
-  /* --------------------------------------------------------------------------
-     4) Üst çubuk: yalnızca kaydırınca çizgi belirir
-     ------------------------------------------------------------------------ */
+  
   var ustbar = document.querySelector('.ustbar');
   if (ustbar) {
     var isaretle = function () {
@@ -347,9 +308,7 @@
     window.addEventListener('scroll', isaretle, { passive: true });
   }
 
-  /* --------------------------------------------------------------------------
-     5) Satır zeminindeki mürekkep lekesi imleci izler
-     ------------------------------------------------------------------------ */
+  
   document.querySelectorAll('a.kayit').forEach(function (satir) {
     satir.addEventListener('pointermove', function (olay) {
       var kutu = satir.getBoundingClientRect();
@@ -359,21 +318,7 @@
     }, { passive: true });
   });
 
-  /* --------------------------------------------------------------------------
-     6) Temaşa masası (ekran görüntüleri)
-     ------------------------------------------------------------------------
-     Plakalar eskiden düz bir kaydırma listesiydi: hiçbiri "seçili" değildi,
-     aktif kare diye bir kavram yoktu ve dokununca hiçbir şey olmuyordu.
-     Burada iki iş yapılır:
-       · cetvel çentikleri PLAKALARDAN üretilir (sayıyı iki yerde tutmak
-         ayrışmanın en kolay yoludur) ve ortadaki plaka işaretlenir; ok tuşları
-         bir plaka ileri/geri gider;
-       · plakaya dokunmak kareyi büyütür (native <dialog>: ESC, odak tuzağı ve
-         arka perde tarayıcıdan gelir, biz yazmıyoruz).
-
-     Vitrin sayfasında `.masa` yoktur; bölüm sessizce çıkar (boş liste üzerinde
-     dönen bir döngü hiçbir şey yapmaz).
-     ------------------------------------------------------------------------ */
+  
   var masaKokleri = document.querySelectorAll('.masa-saray');
   var buyukPlaka = document.getElementById('plaka-buyuk');
 
@@ -405,7 +350,7 @@
       });
     }
 
-    // Ortadaki plaka "seçili"dir: öne kalkar, künyesi pirinçe döner.
+    
     var tazele = function () {
       var orta = masa.scrollLeft + masa.clientWidth / 2;
       var enIyi = 0;
@@ -429,9 +374,9 @@
     window.addEventListener('resize', tazele);
     tazele();
 
-    // Kaydırma kabı klavyeyle odaklanabilir olmalı (erişilebilirlik); ok tuşları
-    // burada hazır bir kaydırma yerine bir PLAKA ilerletir: telefonda yapışan
-    // kareler masaüstünde de hizalı kalsın.
+    
+    
+    
     masa.tabIndex = 0;
     masa.addEventListener('keydown', function (olay) {
       if (olay.key !== 'ArrowLeft' && olay.key !== 'ArrowRight') return;
@@ -462,7 +407,7 @@
         buyukPlaka.showModal();
       });
     });
-    // Arka perdeye dokunmak kapatır; panelin içine dokunmak kapatmaz.
+    
     buyukPlaka.addEventListener('click', function (olay) {
       if (olay.target === buyukPlaka) buyukPlaka.close();
     });

@@ -73,12 +73,9 @@
 </script>
 <script type="module" src="varliklar/murekkep.js"></script>
 <style>
-  /* Bu sayfaya özgü düzen. Renk, yazı tipi, kayıt satırı ve düğme gibi ortak
-     parçalar `varliklar/kimlik.css` içinden gelir; burada yalnızca bu sayfaya
-     özgü bileşenler var. Ham renk yazmak yerine değişken kullanılır. */
+  
   .kap { max-width: 900px; margin: 0 auto; padding: 0 var(--bosluk) 80px; }
-  /* Stüdyo işareti bu sayfada görsel dosyası olarak gelmez (uygulama deposunda
-     stüdyo görselleri yok); pirinç bir kare, markanın rengini taşır. */
+  
   .marka-isaret {
     display: inline-block;
     width: 14px;
@@ -87,11 +84,7 @@
     background: var(--pirinc);
     flex: 0 0 auto;
   }
-  /* — Kahraman ————————————————————————————————————————————————————————
-     Vitrindeki `.kahraman` tam ekranlık (WebGL tuvali için); burada 60 svh
-     yeterli, o yüzden ayrı sınıf kullanılır. Tuval olmadığı için betik
-     `murekkep-yok` sınıfını ekler ve statik mürekkep yıkaması devreye girer —
-     yani bu sayfanın kahramanı da "mürekkep" görünür. */
+  
   .uygulama-kahraman {
     position: relative;
     padding: clamp(40px, 9vh, 84px) 0 clamp(30px, 6vh, 52px);
@@ -149,7 +142,7 @@
     border: 1px solid var(--kenar);
     border-radius: 999px;
   }
-  /* — Bölümler ————————————————————————————————————————————————————————— */
+  
   section { margin-top: clamp(52px, 10vh, 92px); }
   section > h2 {
     font-family: var(--yazi-baslik);
@@ -160,9 +153,7 @@
     padding-bottom: 14px;
     border-bottom: 1px solid var(--kenar);
   }
-  /* — Özellikler ——————————————————————————————————————————————————————
-     Kart yerine kayıt satırı: kutu, gölge ve tekrar eden yuvarlak köşe yok.
-     Sütunlar bir defterin kenar başlıkları gibi üstte ince çizgiyle ayrılır. */
+  
   .izgara {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
@@ -181,7 +172,7 @@
     color: var(--kagit);
   }
   .kart p { margin: 0; font-size: .92rem; color: var(--kagit-soluk); }
-  /* — Ekran görüntüleri ——————————————————————————————————————————————— */
+  
   .serit {
     display: flex;
     gap: 16px;
@@ -208,7 +199,7 @@
   .serit::-webkit-scrollbar { height: 6px; }
   .serit::-webkit-scrollbar-thumb { background: var(--kenar-kuvvetli); border-radius: 3px; }
   .kaydirma { display: none; text-align: center; color: var(--kagit-silik); font-size: .82rem; margin: 0; }
-  /* — Kurulum: sıralı bir akış olduğu için numaralandırma burada anlamlı — */
+  
   ol.adimlar { list-style: none; counter-reset: adim; margin: 0; padding: 0; }
   ol.adimlar li {
     counter-increment: adim;
@@ -242,7 +233,7 @@
     padding: 4px 0 4px 16px;
     margin: 20px 0 0;
   }
-  /* — SSS ————————————————————————————————————————————————————————————— */
+  
   details { border-top: 1px solid var(--kenar); padding: 16px 0; }
   details:last-of-type { border-bottom: 1px solid var(--kenar); }
   summary { cursor: pointer; font-weight: 600; font-size: .98rem; list-style: none; }
@@ -250,7 +241,7 @@
   summary::before { content: '+ '; color: var(--pirinc); font-weight: 600; }
   details[open] summary::before { content: '– '; }
   details p { margin: 12px 0 0; font-size: .93rem; color: var(--kagit-soluk); }
-  /* — Doğrulama ———————————————————————————————————————————————————————— */
+  
   .hash {
     display: block;
     word-break: break-all;
@@ -434,7 +425,7 @@
         <a href="https://hamit4sl4n.github.io/gizlilik/">Gizlilik politikası</a> ·
         <a href="mailto:hamitaslan85@gmail.com">hamitaslan85@gmail.com</a>
       </p>
-      <p>Son güncelleme: 2 Ekim 2026 · Paket: <code>com.hamit.tesbihat</code></p>
+      <p>Son güncelleme: 3 Ekim 2026 · Paket: <code>com.hamit.tesbihat</code></p>
     </div>
   </footer>
 </div>

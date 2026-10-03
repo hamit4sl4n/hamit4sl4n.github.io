@@ -73,12 +73,9 @@
 </script>
 <script type="module" src="varliklar/murekkep.js"></script>
 <style>
-  /* Bu sayfaya özgü düzen. Renk, yazı tipi, kayıt satırı ve düğme gibi ortak
-     parçalar `varliklar/kimlik.css` içinden gelir; burada yalnızca bu sayfaya
-     özgü bileşenler var. Ham renk yazmak yerine değişken kullanılır. */
+  
   .kap { max-width: 900px; margin: 0 auto; padding: 0 var(--bosluk) 80px; }
-  /* Stüdyo işareti bu sayfada görsel dosyası olarak gelmez (uygulama deposunda
-     stüdyo görselleri yok); pirinç bir kare, markanın rengini taşır. */
+  
   .marka-isaret {
     display: inline-block;
     width: 14px;
@@ -87,11 +84,7 @@
     background: var(--pirinc);
     flex: 0 0 auto;
   }
-  /* — Kahraman ————————————————————————————————————————————————————————
-     Vitrindeki `.kahraman` tam ekranlık (WebGL tuvali için); burada 60 svh
-     yeterli, o yüzden ayrı sınıf kullanılır. Tuval olmadığı için betik
-     `murekkep-yok` sınıfını ekler ve statik mürekkep yıkaması devreye girer —
-     yani bu sayfanın kahramanı da "mürekkep" görünür. */
+  
   .uygulama-kahraman {
     position: relative;
     padding: clamp(40px, 9vh, 84px) 0 clamp(30px, 6vh, 52px);
@@ -149,7 +142,7 @@
     border: 1px solid var(--kenar);
     border-radius: 999px;
   }
-  /* — Bölümler ————————————————————————————————————————————————————————— */
+  
   section { margin-top: clamp(52px, 10vh, 92px); }
   section > h2 {
     font-family: var(--yazi-baslik);
@@ -160,9 +153,7 @@
     padding-bottom: 14px;
     border-bottom: 1px solid var(--kenar);
   }
-  /* — Özellikler ——————————————————————————————————————————————————————
-     Kart yerine kayıt satırı: kutu, gölge ve tekrar eden yuvarlak köşe yok.
-     Sütunlar bir defterin kenar başlıkları gibi üstte ince çizgiyle ayrılır. */
+  
   .izgara {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
@@ -181,13 +172,7 @@
     color: var(--kagit);
   }
   .kart p { margin: 0; font-size: .92rem; color: var(--kagit-soluk); }
-  /* — Ekran görüntüleri: temaşa masası ————————————————————————————————————
-     Önceleri düz bir kaydırma şeridiydi: altı kare eşit boyda, hiçbiri
-     "seçili" değil, dokununca hiçbir şey olmuyordu. Şimdi masa gibi çalışır:
-     ortadaki plaka öne kalkar, komşuları geri çekilip soluklanır, altta pirinç
-     cetvel hangi plakada olduğumuzu söyler ve plakaya dokununca kare büyür.
-     Kareler oyunun KENDİ çekimidir; dokunma kareyi değiştirmez, YAKINLAŞTIRIR:
-     telefonda 9:16 bir kare avuç içi kadar kalıyor, asıl iş onu büyütmek. */
+  
   .masa {
     display: flex;
     gap: clamp(12px, 2.4vw, 20px);
@@ -211,8 +196,7 @@
     border-radius: var(--yuvarlak);
     background: var(--gece-kutu);
     overflow: hidden;
-    /* Ortada olmayan plaka bir tık geride ve soluk durur: göz nereye bakacağını
-       cetvelden önce buradan anlar. */
+    
     transform: translateY(6px) scale(.955);
     opacity: .66;
     transition: transform var(--hizli) var(--yumusak), opacity var(--hizli) linear,
@@ -241,10 +225,7 @@
   .masa-kunye b { font-weight: 500; letter-spacing: .06em; color: var(--kagit-soluk); }
   .masa-kart[data-aktif] .masa-kunye,
   .masa-kart[data-aktif] .masa-kunye b { color: var(--pirinc-parlak); }
-  /* Cetvel: kaç plaka var, hangisindeyiz. Çentikler aynı zamanda düğme —
-     dördüncü çentiğe basmak dördüncü plakayı ortaya getirir; klavye ile
-     gezinmenin de en kolay yolu bu. Çentikler BETİKTE plakalardan üretilir
-     (ikinci bir yerde sayı tutmak ayrışmanın en kolay yoludur). */
+  
   .cetvel { display: flex; align-items: center; gap: 4px; margin: 16px 0 0; padding: 0; list-style: none; }
   .cetvel::before, .cetvel::after { content: ''; height: 1px; flex: 1; background: var(--kenar); }
   .cetvel button {
@@ -269,17 +250,7 @@
   .cetvel button[aria-current="true"]::before { width: 3px; height: 17px; background: var(--pirinc-parlak); }
   .cetvel button:focus-visible { outline: 2px solid var(--pirinc-parlak); outline-offset: 2px; }
   .masa-ipucu { margin: 14px 0 0; font-size: .8rem; color: var(--kagit-silik); }
-  /* Kareler görüş alanına girerken "belirir": kesme değil NETLEŞME (karanlık
-     odada kare çıkarma dili). Bilgi taşımaz, o yüzden desteklemeyen tarayıcıda
-     hiç görünmez — duran hâl zaten doğru hâldir.
-     ⚠️ İki tuzak, ikisi de ölçümle bulundu:
-     1) Kaydırma sürücülü animasyonu kimlik katmanındaki
-        `animation-duration: .001ms` DURDURMAZ: ilerleme süreden değil
-        kaydırmadan gelir. Bu yüzden aşağıda açık `animation: none` bloğu var.
-     2) `view()` EN YAKIN kaydırma kabına bakar. Efekt plakanın (yani `.masa`
-        yatay kaydırıcısının) üstüne konursa blok eksende hep "tam görünür"
-        kalır ve animasyon ölü doğar. Bu yüzden efekt kaydırıcının DIŞINDAKİ
-        sarmalayıcıya biner: masa bütünüyle netleşir. */
+  
   .masa-saray { position: relative; }
   @keyframes netleme {
     from { filter: brightness(.4) saturate(.25) contrast(1.14); opacity: .3; }
@@ -295,8 +266,7 @@
   @media (prefers-reduced-motion: reduce) {
     .masa-saray, .buyuk[open] { animation: none !important; }
   }
-  /* Büyük plaka. Native <dialog>: ESC ile kapanır, odağı içeride tutar ve arka
-     perdeyi kendisi verir — erişilebilirlik için bedava gelen üç şey. */
+  
   .buyuk {
     border: 1px solid var(--kenar-kuvvetli);
     border-radius: var(--yuvarlak);
@@ -335,7 +305,7 @@
   @media (max-width: 660px) {
     .masa-kart { width: 68vw; }
   }
-  /* — Kurulum: sıralı bir akış olduğu için numaralandırma burada anlamlı — */
+  
   ol.adimlar { list-style: none; counter-reset: adim; margin: 0; padding: 0; }
   ol.adimlar li {
     counter-increment: adim;
@@ -369,7 +339,7 @@
     padding: 4px 0 4px 16px;
     margin: 20px 0 0;
   }
-  /* — SSS ————————————————————————————————————————————————————————————— */
+  
   details { border-top: 1px solid var(--kenar); padding: 16px 0; }
   details:last-of-type { border-bottom: 1px solid var(--kenar); }
   summary { cursor: pointer; font-weight: 600; font-size: .98rem; list-style: none; }
@@ -377,7 +347,7 @@
   summary::before { content: '+ '; color: var(--pirinc); font-weight: 600; }
   details[open] summary::before { content: '– '; }
   details p { margin: 12px 0 0; font-size: .93rem; color: var(--kagit-soluk); }
-  /* — Doğrulama ———————————————————————————————————————————————————————— */
+  
   .hash {
     display: block;
     word-break: break-all;
@@ -628,7 +598,7 @@
         <a href="https://hamit4sl4n.github.io/gizlilik/laststand/">Gizlilik politikası</a> ·
         <a href="mailto:hamitaslan85@gmail.com">hamitaslan85@gmail.com</a>
       </p>
-      <p>Son güncelleme: 2 Ekim 2026 · Paket: <code>com.hamit.laststand</code></p>
+      <p>Son güncelleme: 3 Ekim 2026 · Paket: <code>com.hamit.laststand</code></p>
     </div>
   </footer>
 </div>
