@@ -23,8 +23,8 @@
   --yuvarlak-kucuk: 10px;
 
   
-  --yazi: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --yazi-baslik: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --yazi: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --yazi-baslik: 'Chakra Petch', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   
   --yumusak: cubic-bezier(.2, .7, .2, 1);
@@ -158,7 +158,16 @@ h1, h2, h3 { font-weight: 500; }
   font-size: .86rem;
   letter-spacing: .01em;
 }
-.ustbar-baglantilar a { border-bottom-color: transparent; color: var(--kagit-soluk); }
+
+.ustbar-baglantilar a {
+  display: inline-flex;
+  align-items: flex-end;
+  min-height: 26px;
+  padding-block-start: 4px;
+  margin-block-start: -4px;
+  border-bottom-color: transparent;
+  color: var(--kagit-soluk);
+}
 .ustbar-baglantilar a:hover { color: var(--kagit); border-bottom-color: var(--kenar-kuvvetli); }
 
 
@@ -399,13 +408,15 @@ a.kayit { cursor: pointer; }
 .kayit-ad {
   grid-column: 2;
   grid-row: 1;
-  font-size: 1.06rem;
+  font-family: var(--yazi-baslik);
+  font-size: 1.14rem;
   font-weight: 600;
   letter-spacing: -.005em;
   line-height: 1.28;
 }
 .kayit-tur {
   display: block;
+  font-family: var(--yazi);
   font-size: .78rem;
   font-weight: 400;
   letter-spacing: .04em;
@@ -441,7 +452,17 @@ a.kayit:hover .kayit-ok, a.kayit:focus-visible .kayit-ok { transform: translateX
 
 
 .kayit-beklemede { color: var(--kagit-soluk); }
-.kayit-beklemede .kayit-ad { color: var(--kagit-soluk); }
+.kayit-beklemede .kayit-ad { color: var(--kagit); opacity: .86; }
+.kayit-beklemede .kayit-olcu {
+  color: var(--pirinc-parlak);
+  border: 1px solid rgba(200, 154, 78, .42);
+  background: rgba(200, 154, 78, .1);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: .76rem;
+  font-weight: 500;
+  letter-spacing: .03em;
+}
 .kayit-beklemede .kayit-ok { color: var(--kenar-kuvvetli); }
 
 
@@ -505,7 +526,12 @@ footer {
   justify-content: space-between;
 }
 footer p { margin: 0; }
-footer a { color: var(--kagit-soluk); border-bottom-color: var(--kenar); }
+
+footer a {
+  padding-block-start: 7px;
+  color: var(--kagit-soluk);
+  border-bottom-color: var(--kenar);
+}
 
 
 .belir { --gecikme: 0s; }
